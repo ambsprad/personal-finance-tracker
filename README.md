@@ -13,13 +13,12 @@ Built with Python.# Personal Finance Tracker
 
 A command-line Personal Finance Tracker written in Python.
 
-## Features
+## Current Features
 
 - Add income
-- Add expenses
-- View all transactions
-- View current balance
-- Save transactions
+- Store transactions in memory
+- Display income transactions
+- Menu-driven interface
 
 ## Technologies
 
@@ -35,9 +34,9 @@ This project is part of my software development portfolio as I transition from r
 
 ## Future Features
 
-- Categories
+- Add expenses
+- View all transactions
+- View account balance
+- Save data to JSON
+- Load saved transactions
 - Monthly reports
-- JSON storage
-- CSV export
-- Data visualization
-- Web version using Flask or FastAPI
