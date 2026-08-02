@@ -83,7 +83,7 @@ def view_transactions(transactions):
         for transaction in transactions:
             if transaction["type"] == "income":
                 income_transactions.append(transaction)
-            else:
+            elif transaction["type"] == "expense":
                 expense_transactions.append(transaction)
 
         if income_transactions:
@@ -105,7 +105,7 @@ def view_transactions(transactions):
             for expense_trans in expense_transactions:
                 print(
                     f"\nExpense Amount: ${expense_trans['amount']:.2f}"
-                    f"\nDate Recevied: {expense_trans['date']}" 
+                    f"\nDate Paid: {expense_trans['date']}" 
                     f"\nDescription: {expense_trans['description']}"
                 )
         else: 
@@ -113,7 +113,26 @@ def view_transactions(transactions):
 
     else:
         print("\nYou do not have any transactions to view.")
-     
+
+
+def view_balance(transactions):
+    income_total = 0
+    expense_total = 0
+
+    for trans in transactions:
+        if trans["type"] == "income":
+            income_total += trans["amount"]
+        elif trans["type"] == "expense":
+            expense_total += trans["amount"]
+    
+    balance = income_total - expense_total
+
+    print("\nBalance Summary" + "\n" + "-"*10)
+    print(f"\nTotal Income: ${income_total:.2f}")
+    print(f"\nTotal Expenses: ${expense_total:.2f}")
+    print("\n" + "-"*10)
+    print(f"\nBalance: ${balance:.2f}")
+
 
 def main():
     transactions = []
@@ -136,6 +155,7 @@ def main():
 
         elif choice == "4":
             print("\nView Balance Selected")
+            view_balance(transactions)
 
         elif choice == "5":
             print("\nGoodbye!")
