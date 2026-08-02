@@ -12,12 +12,12 @@ def display_menu():
 def add_income(transactions):
 
     while True:
-        have_income = input("Do you have income to add? Y for Yes N for No. ").strip().upper()
+        have_income = input("Do you have income to add? Y for Yes, N for No. ").strip().upper()
 
         if have_income == "Y":
             new_transaction = {
                 'type': "income",
-                'amount': float(input("Enter income amount: ")),
+                'amount': float(input("Enter income amount: $")),
                 'date': input("Enter date of income (MM-DD-YYYY): "),
                 'description': input("Enter description of income: ")
                 }
@@ -35,20 +35,92 @@ def add_income(transactions):
 
             else:
                 print("You did not add any income transactions.")
-            print("Returning to main menu.")
+                print("Returning to main menu.")
+
             break
 
         else:
             print("You entered an invalid response. Please enter Y or N for your response.")
 
 
+def add_expense(transactions):
+    while True:
+        have_expense = input("Do yo have expenses to add? Y for yes, N for No.  ").strip().upper()
+
+        if have_expense == "Y":
+            new_transaction = {
+                'type': "expense",
+                'amount': float(input("Enter the amount of the expense. $")),
+                'date': input("Enter the date of the expense (MM-DD-YY).  "),
+                'description': input("Enter a description for the expense.  ")
+            }
+            transactions.append(new_transaction)
+        elif have_expense == "N":
+            if transactions: 
+                print("You added the following expense transactions: ")
+                for transaction in transactions:
+                    if transaction["type"] == "expense":
+                        print(
+                            f"\nExpense Amount: ${transaction['amount']:.2f}"
+                            f"\nDate Recevied: {transaction['date']}" 
+                            f"\nDescription: {transaction['description']}"
+                        )         
+            else:
+                print("You did not add any expense transactions.")
+                print("Returning to main menu.")
+
+            break
+
+        else:
+            print("You entered an invalid response. Please enter Y or N for your response.")
+
+
+def view_transactions(transactions):
+    income_transactions = []
+    expense_transactions = []
+
+    if transactions:
+        for transaction in transactions:
+            if transaction["type"] == "income":
+                income_transactions.append(transaction)
+            else:
+                expense_transactions.append(transaction)
+
+        if income_transactions:
+            print("Income\n" + "-"*10)
+            
+            for income_trans in income_transactions:
+                print(
+                    f"\nIncome Amount: ${income_trans['amount']:.2f}"
+                    f"\nDate Recevied: {income_trans['date']}" 
+                    f"\nDescription: {income_trans['description']}"
+                )
+        else:
+            print("\nThere are no income transactions to view at this time.\n")
+        
+        if expense_transactions:
+            print("Expenses")
+            print("-"*10)
+
+            for expense_trans in expense_transactions:
+                print(
+                    f"\nExpense Amount: ${expense_trans['amount']:.2f}"
+                    f"\nDate Recevied: {expense_trans['date']}" 
+                    f"\nDescription: {expense_trans['description']}"
+                )
+        else: 
+            print("There are no expenses at this time.")
+
+    else:
+        print("\nYou do not have any transactions to view.")
+     
 
 def main():
     transactions = []
     while True:
         display_menu()
 
-        choice = input("\nChoose an option: ")
+        choice = input("\nChoose an option: ").strip()
 
         if choice == "1":
             print("\nAdd Income Selected")
@@ -56,9 +128,11 @@ def main():
         
         elif choice == "2":
             print("\nAdd Expense Selected")
+            add_expense(transactions)
 
         elif choice == "3":
             print("\nView Transactions Selected")
+            view_transactions(transactions)
 
         elif choice == "4":
             print("\nView Balance Selected")
