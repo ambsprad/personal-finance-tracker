@@ -1,3 +1,5 @@
+import json
+
 def display_menu():
     print("\n" + "=" * 40)
     print(" Personal Finance Tracker")
@@ -22,17 +24,18 @@ def add_income(transactions):
                 'description': input("Enter description of income: ")
                 }
             transactions.append(new_transaction)
+            save_transactions(transactions)
 
         elif have_income == "N":
             if transactions:
                 print("You added the following income transactions: ")
                 for transaction in transactions:
-                    print(
-                        f"\nIncome Amount: ${transaction["amount"]:.2f}"
-                        f"\nDate Recevied: {transaction["date"]}" 
-                        f"\nDescription: {transaction["description"]}"
-                    )         
-
+                    if transaction["type"] == "income":
+                        print(
+                            f"\nIncome Amount: ${transaction["amount"]:.2f}"
+                            f"\nDate Recevied: {transaction["date"]}" 
+                            f"\nDescription: {transaction["description"]}"
+                        )         
             else:
                 print("You did not add any income transactions.")
                 print("Returning to main menu.")
@@ -45,16 +48,17 @@ def add_income(transactions):
 
 def add_expense(transactions):
     while True:
-        have_expense = input("Do yo have expenses to add? Y for yes, N for No.  ").strip().upper()
+        have_expense = input("Do you have expenses to add? Y for yes, N for No.  ").strip().upper()
 
         if have_expense == "Y":
             new_transaction = {
                 'type': "expense",
                 'amount': float(input("Enter the amount of the expense. $")),
-                'date': input("Enter the date of the expense (MM-DD-YY).  "),
+                'date': input("Enter the date of the expense (MM-DD-YYYY).  "),
                 'description': input("Enter a description for the expense.  ")
             }
             transactions.append(new_transaction)
+            save_transactions(transactions)
         elif have_expense == "N":
             if transactions: 
                 print("You added the following expense transactions: ")
@@ -62,7 +66,7 @@ def add_expense(transactions):
                     if transaction["type"] == "expense":
                         print(
                             f"\nExpense Amount: ${transaction['amount']:.2f}"
-                            f"\nDate Recevied: {transaction['date']}" 
+                            f"\nDate Paid: {transaction['date']}" 
                             f"\nDescription: {transaction['description']}"
                         )         
             else:
@@ -92,7 +96,7 @@ def view_transactions(transactions):
             for income_trans in income_transactions:
                 print(
                     f"\nIncome Amount: ${income_trans['amount']:.2f}"
-                    f"\nDate Recevied: {income_trans['date']}" 
+                    f"\nDate Received: {income_trans['date']}" 
                     f"\nDescription: {income_trans['description']}"
                 )
         else:
@@ -133,9 +137,23 @@ def view_balance(transactions):
     print("\n" + "-"*10)
     print(f"\nBalance: ${balance:.2f}")
 
+def save_transactions(transactions):
+    with open("transactions.json", "w") as file:
+        json.dump(transactions, file, indent=4)
+
+def load_transactions():
+    try:
+        with open("transactions.json", "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
+    except json.JSONDecodeError:
+        print("There was an error reading the current file.")
+        return []
+
 
 def main():
-    transactions = []
+    transactions = load_transactions()
     while True:
         display_menu()
 
