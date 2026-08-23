@@ -120,6 +120,16 @@ def view_transactions(transactions):
 
 
 def view_balance(transactions):
+
+    income_total, expense_total, balance = calculate_balance(transactions)
+
+    print("\nBalance Summary" + "\n" + "-"*10)
+    print(f"\nTotal Income: ${income_total:.2f}")
+    print(f"\nTotal Expenses: ${expense_total:.2f}")
+    print("\n" + "-"*10)
+    print(f"\nBalance: ${balance:.2f}")
+
+def calculate_balance(transactions):
     income_total = 0
     expense_total = 0
 
@@ -131,19 +141,15 @@ def view_balance(transactions):
     
     balance = income_total - expense_total
 
-    print("\nBalance Summary" + "\n" + "-"*10)
-    print(f"\nTotal Income: ${income_total:.2f}")
-    print(f"\nTotal Expenses: ${expense_total:.2f}")
-    print("\n" + "-"*10)
-    print(f"\nBalance: ${balance:.2f}")
+    return income_total, expense_total, balance
 
-def save_transactions(transactions):
-    with open("transactions.json", "w") as file:
+def save_transactions(transactions, filename="transactions.json"):
+    with open(filename, "w") as file:
         json.dump(transactions, file, indent=4)
 
-def load_transactions():
+def load_transactions(filename="transactions.json"):
     try:
-        with open("transactions.json", "r") as file:
+        with open(filename, "r") as file:
             return json.load(file)
     except FileNotFoundError:
         return []
