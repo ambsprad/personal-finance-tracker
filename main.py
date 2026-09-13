@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 def display_menu():
     print("\n" + "=" * 40)
@@ -11,20 +12,40 @@ def display_menu():
     print("5. Exit")
 
 
-def add_income(transactions):
+def add_income(transactions, filename="transactions.json"):
 
     while True:
         have_income = input("Do you have income to add? Y for Yes, N for No. ").strip().upper()
 
         if have_income == "Y":
+            while True:
+                try:
+                    amount = float(input("Enter income amount: $"))
+
+                    if amount <= 0:
+                        print("Amount must be greater than 0.")
+                        continue
+
+                    break
+                except ValueError:
+                    print("Invalid amount. Please enter a valid number.")
+            while True:
+                date_text = input("Enter date of income (MM-DD-YYYY): ")
+                valid_date = validate_date(date_text)
+
+                if valid_date is None:
+                    print("Please enter a valid date.")
+                    continue
+                break
+
             new_transaction = {
                 'type': "income",
-                'amount': float(input("Enter income amount: $")),
-                'date': input("Enter date of income (MM-DD-YYYY): "),
+                'amount': amount,
+                'date': date_text,
                 'description': input("Enter description of income: ")
                 }
             transactions.append(new_transaction)
-            save_transactions(transactions)
+            save_transactions(transactions, filename)
 
         elif have_income == "N":
             if transactions:
@@ -32,9 +53,9 @@ def add_income(transactions):
                 for transaction in transactions:
                     if transaction["type"] == "income":
                         print(
-                            f"\nIncome Amount: ${transaction["amount"]:.2f}"
-                            f"\nDate Recevied: {transaction["date"]}" 
-                            f"\nDescription: {transaction["description"]}"
+                            f"\nIncome Amount: ${transaction['amount']:.2f}"
+                            f"\nDate Received: {transaction['date']}" 
+                            f"\nDescription: {transaction['description']}"
                         )         
             else:
                 print("You did not add any income transactions.")
@@ -46,19 +67,39 @@ def add_income(transactions):
             print("You entered an invalid response. Please enter Y or N for your response.")
 
 
-def add_expense(transactions):
+def add_expense(transactions, filename="transactions.json"):
     while True:
         have_expense = input("Do you have expenses to add? Y for yes, N for No.  ").strip().upper()
 
         if have_expense == "Y":
+            while True:
+                try:
+                    amount = float(input("Enter the amount of the expense: $"))
+                    if amount <= 0:
+                        print("Amount must be greater than 0.")
+                        continue
+                    break
+
+                except ValueError:
+                    print("Invalid amount. Please enter a valid number.")
+
+            while True:
+                date_text = input("Enter date of expense (MM-DD-YYYY): ")
+                valid_date = validate_date(date_text)
+
+                if valid_date is None:
+                    print("Please enter a valid date.")
+                    continue
+                break
+
             new_transaction = {
                 'type': "expense",
-                'amount': float(input("Enter the amount of the expense. $")),
-                'date': input("Enter the date of the expense (MM-DD-YYYY).  "),
+                'amount': amount,
+                'date': date_text,
                 'description': input("Enter a description for the expense.  ")
             }
             transactions.append(new_transaction)
-            save_transactions(transactions)
+            save_transactions(transactions, filename)
         elif have_expense == "N":
             if transactions: 
                 print("You added the following expense transactions: ")
@@ -157,6 +198,12 @@ def load_transactions(filename="transactions.json"):
         print("There was an error reading the current file.")
         return []
 
+def validate_date(date_text):
+    try:
+        valid_date = datetime.strptime(date_text, "%m-%d-%Y")
+        return valid_date
+    except ValueError:
+        return None
 
 def main():
     transactions = load_transactions()
