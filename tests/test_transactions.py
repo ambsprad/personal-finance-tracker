@@ -4,7 +4,9 @@ from main import (
     load_transactions,
     add_income,
     add_expense,
-    validate_date
+    validate_date,
+    get_valid_amount,
+    get_valid_date
 )
 
 def test_calculate_balance():
@@ -365,3 +367,72 @@ def test_add_expense_invalid_date(monkeypatch, capsys, tmp_path):
     assert transactions[0]["amount"] == 250.50
     assert transactions[0]["date"] == "09-13-2026"
     assert transactions[0]["description"] == "Electric Bill"
+
+def test_valid_amount(monkeypatch):
+    user_inputs = iter(["250.50"])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    amount = get_valid_amount()
+
+    assert amount == 250.50
+
+def test_invalid_text_valid_amout(monkeypatch, capsys):
+    user_inputs = iter([
+        "abc",
+        "250.50"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    amount = get_valid_amount()
+    captured = capsys.readouterr()
+
+    assert amount == 250.50
+    assert "Invalid amount. Please enter a valid number" in captured.out
+
+def test_non_positive_valid_amount(monkeypatch, capsys):
+    user_inputs = iter([
+        "-50",
+        "0",
+        "250.50"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    amount = get_valid_amount()
+    captured = capsys.readouterr()
+
+    assert amount == 250.50
+    assert "Amount must be greater than 0" in captured.out
+
+def test_get_valid_date(monkeypatch):
+    user_inputs = iter(["09-20-2026"])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    date_text = get_valid_date()
+
+    assert date_text == "09-20-2026"
+
+def test_invalid_date_valid_date(monkeypatch, capsys):
+    user_inputs = iter([
+        "02-30-2026",
+        "09-20-2026"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    date_text = get_valid_date()
+    captured = capsys.readouterr()
+
+    assert date_text == "09-20-2026"
+    assert "Please enter a valid date" in captured.out
+
+def test_invalid_format_valid_date(monkeypatch, capsys):
+    user_inputs = iter([
+        "abc",
+        "09-20-2026"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    date_text = get_valid_date()
+    captured = capsys.readouterr()
+
+    assert date_text == "09-20-2026"
+    assert "Please enter a valid date" in captured.out

@@ -18,30 +18,13 @@ def add_income(transactions, filename="transactions.json"):
         have_income = input("Do you have income to add? Y for Yes, N for No. ").strip().upper()
 
         if have_income == "Y":
-            while True:
-                try:
-                    amount = float(input("Enter income amount: $"))
-
-                    if amount <= 0:
-                        print("Amount must be greater than 0.")
-                        continue
-
-                    break
-                except ValueError:
-                    print("Invalid amount. Please enter a valid number.")
-            while True:
-                date_text = input("Enter date of income (MM-DD-YYYY): ")
-                valid_date = validate_date(date_text)
-
-                if valid_date is None:
-                    print("Please enter a valid date.")
-                    continue
-                break
+            income_amount = get_valid_amount()
+            income_date = get_valid_date()
 
             new_transaction = {
                 'type': "income",
-                'amount': amount,
-                'date': date_text,
+                'amount': income_amount,
+                'date': income_date,
                 'description': input("Enter description of income: ")
                 }
             transactions.append(new_transaction)
@@ -72,34 +55,18 @@ def add_expense(transactions, filename="transactions.json"):
         have_expense = input("Do you have expenses to add? Y for yes, N for No.  ").strip().upper()
 
         if have_expense == "Y":
-            while True:
-                try:
-                    amount = float(input("Enter the amount of the expense: $"))
-                    if amount <= 0:
-                        print("Amount must be greater than 0.")
-                        continue
-                    break
-
-                except ValueError:
-                    print("Invalid amount. Please enter a valid number.")
-
-            while True:
-                date_text = input("Enter date of expense (MM-DD-YYYY): ")
-                valid_date = validate_date(date_text)
-
-                if valid_date is None:
-                    print("Please enter a valid date.")
-                    continue
-                break
+            expense_amount = get_valid_amount()
+            expense_date = get_valid_date()
 
             new_transaction = {
                 'type': "expense",
-                'amount': amount,
-                'date': date_text,
+                'amount': expense_amount,
+                'date': expense_date,
                 'description': input("Enter a description for the expense.  ")
             }
             transactions.append(new_transaction)
             save_transactions(transactions, filename)
+
         elif have_expense == "N":
             if transactions: 
                 print("You added the following expense transactions: ")
@@ -144,7 +111,7 @@ def view_transactions(transactions):
             print("\nThere are no income transactions to view at this time.\n")
         
         if expense_transactions:
-            print("Expenses")
+            print("/nExpenses")
             print("-"*10)
 
             for expense_trans in expense_transactions:
@@ -204,6 +171,29 @@ def validate_date(date_text):
         return valid_date
     except ValueError:
         return None
+
+def get_valid_amount():
+    while True:
+        try:
+            amount = float(input("Enter the amount: $"))
+            if amount <= 0:
+                print("Amount must be greater than 0.")
+                continue
+            break
+        except ValueError:
+            print("Invalid amount. Please enter a valid number.")
+    return amount
+
+def get_valid_date():
+    while True:
+        date_text = input("Enter the date of the transaction (MM-DD-YYYY): ")
+        valid_date = validate_date(date_text)
+
+        if valid_date is None:
+            print("Please enter a valid date.")
+            continue
+        break
+    return date_text
 
 def main():
     transactions = load_transactions()
