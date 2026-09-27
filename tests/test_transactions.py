@@ -6,7 +6,8 @@ from main import (
     add_expense,
     validate_date,
     get_valid_amount,
-    get_valid_date
+    get_valid_date,
+    get_description
 )
 
 def test_calculate_balance():
@@ -436,3 +437,63 @@ def test_invalid_format_valid_date(monkeypatch, capsys):
 
     assert date_text == "09-20-2026"
     assert "Please enter a valid date" in captured.out
+
+
+def test_description(monkeypatch):
+    user_inputs = iter([
+        "paycheck"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    description = get_description()
+
+    assert description == "paycheck"
+
+def test_blank_description(monkeypatch):
+    user_inputs = iter([
+        "",
+        "Y"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    description = get_description()
+
+    assert description == ""
+
+def test_add_description_after_blank(monkeypatch):
+    user_inputs = iter([
+        "",
+        "N",
+        "paycheck"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    description = get_description()
+
+    assert description == "paycheck"
+
+def test_invalid_response_description(monkeypatch, capsys):
+    user_inputs = iter([
+        "",
+        "X",
+        "",
+        "Y"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    description = get_description()
+    captured = capsys.readouterr()
+
+    assert description == ""
+    assert "Invalid response" in captured.out
+
+def test_description_whitespace_only(monkeypatch):
+    user_inputs = iter([
+        "   ",
+        "Y"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    description = get_description()
+
+    assert description == ""

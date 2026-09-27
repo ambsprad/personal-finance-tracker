@@ -20,12 +20,13 @@ def add_income(transactions, filename="transactions.json"):
         if have_income == "Y":
             income_amount = get_valid_amount()
             income_date = get_valid_date()
+            income_description = get_description()
 
             new_transaction = {
                 'type': "income",
                 'amount': income_amount,
                 'date': income_date,
-                'description': input("Enter description of income: ")
+                'description': income_description,
                 }
             transactions.append(new_transaction)
             save_transactions(transactions, filename)
@@ -57,12 +58,13 @@ def add_expense(transactions, filename="transactions.json"):
         if have_expense == "Y":
             expense_amount = get_valid_amount()
             expense_date = get_valid_date()
+            expense_description = get_description()
 
             new_transaction = {
                 'type': "expense",
                 'amount': expense_amount,
                 'date': expense_date,
-                'description': input("Enter a description for the expense.  ")
+                'description': expense_description
             }
             transactions.append(new_transaction)
             save_transactions(transactions, filename)
@@ -194,6 +196,25 @@ def get_valid_date():
             continue
         break
     return date_text
+
+
+def get_description():
+    while True:
+        description = input("Enter a description for the transaction: ").strip()
+
+        if description == "":
+            blank_desc = input("Your description is blank.  Do you want to leave it blank? Y for yes N for no.  ").strip().upper()
+            if blank_desc == "Y":
+                break
+            elif blank_desc == "N":
+                continue
+            else:
+                print("Invalid response.")
+                continue
+
+        break
+
+    return description
 
 def main():
     transactions = load_transactions()
