@@ -89,7 +89,7 @@ def add_expense(transactions, filename="transactions.json"):
             print("You entered an invalid response. Please enter Y or N for your response.")
 
 
-def view_transactions(transactions):
+def view_transactions(transactions, transaction_type="all"):
     income_transactions = []
     expense_transactions = []
 
@@ -100,30 +100,32 @@ def view_transactions(transactions):
             elif transaction["type"] == "expense":
                 expense_transactions.append(transaction)
 
-        if income_transactions:
-            print("Income\n" + "-"*10)
+        if transaction_type == "all" or transaction_type == "income":
+            if income_transactions:
+                print("\nIncome\n" + "-"*10)
             
-            for income_trans in income_transactions:
-                print(
-                    f"\nIncome Amount: ${income_trans['amount']:.2f}"
-                    f"\nDate Received: {income_trans['date']}" 
-                    f"\nDescription: {income_trans['description']}"
-                )
-        else:
-            print("\nThere are no income transactions to view at this time.\n")
-        
-        if expense_transactions:
-            print("/nExpenses")
-            print("-"*10)
+                for income_trans in income_transactions:
+                    print(
+                        f"\nIncome Amount: ${income_trans['amount']:.2f}"
+                        f"\nDate Received: {income_trans['date']}" 
+                        f"\nDescription: {income_trans['description']}"
+                    )
+            else:
+                print("\nThere are no income transactions to view at this time.\n")
 
-            for expense_trans in expense_transactions:
-                print(
-                    f"\nExpense Amount: ${expense_trans['amount']:.2f}"
-                    f"\nDate Paid: {expense_trans['date']}" 
-                    f"\nDescription: {expense_trans['description']}"
-                )
-        else: 
-            print("There are no expenses at this time.")
+        if transaction_type == "all" or transaction_type == "expense":   
+            if expense_transactions:
+                print("\nExpenses")
+                print("-"*10)
+
+                for expense_trans in expense_transactions:
+                    print(
+                        f"\nExpense Amount: ${expense_trans['amount']:.2f}"
+                        f"\nDate Paid: {expense_trans['date']}" 
+                        f"\nDescription: {expense_trans['description']}"
+                    )
+            else: 
+                print("There are no expenses at this time.")
 
     else:
         print("\nYou do not have any transactions to view.")
@@ -216,6 +218,33 @@ def get_description():
 
     return description
 
+
+def transaction_menu(transactions):
+    while True:
+        print("\n" + "=" * 40)
+        print(" View Transactions ")
+        print("=" * 40)
+        print("1. View All Transactions ")
+        print("2. View Income Only ")
+        print("3. View Expense Only ")
+        print("4. Return to Main Menu ")
+
+        choice = input("\nChoose an option: ").strip()
+
+        if choice == "1":
+            view_transactions(transactions)
+        elif choice == "2":
+            view_transactions(transactions, "income")
+        elif choice == "3":
+            view_transactions(transactions, "expense")
+        elif choice == "4":
+            print("\nReturning to main menu.")
+            break
+        else:
+            print("\nInvalid option.  Please choose again.")
+
+
+
 def main():
     transactions = load_transactions()
     while True:
@@ -233,7 +262,7 @@ def main():
 
         elif choice == "3":
             print("\nView Transactions Selected")
-            view_transactions(transactions)
+            transaction_menu(transactions)
 
         elif choice == "4":
             print("\nView Balance Selected")

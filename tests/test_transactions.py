@@ -7,7 +7,8 @@ from main import (
     validate_date,
     get_valid_amount,
     get_valid_date,
-    get_description
+    get_description,
+    transaction_menu,
 )
 
 def test_calculate_balance():
@@ -497,3 +498,115 @@ def test_description_whitespace_only(monkeypatch):
     description = get_description()
 
     assert description == ""
+
+def test_transaction_menu_all_transactions(monkeypatch, capsys):
+    transactions = [
+        {
+            "type": "income",
+            "amount": 1000.00,
+            "date": "09-20-2026",
+            "description": "Paycheck"
+        },
+        {
+            "type": "expense",
+            "amount": 50.00,
+            "date": "09-21-2026",
+            "description": "Gas"
+        }
+    ]
+
+    user_inputs = iter([
+        "1",
+        "4"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    transaction_menu(transactions)
+    captured = capsys.readouterr()
+
+    assert "Paycheck" in captured.out
+    assert "Gas" in captured.out
+
+def test_transaction_menu_income_only(monkeypatch, capsys):
+    transactions = [
+        {
+            "type": "income",
+            "amount": 1000.00,
+            "date": "09-20-2026",
+            "description": "Paycheck"
+        },
+        {
+            "type": "expense",
+            "amount": 50.00,
+            "date": "09-21-2026",
+            "description": "Gas"
+        }
+    ]
+
+    user_inputs = iter([
+        "2",
+        "4"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    transaction_menu(transactions)
+    captured = capsys.readouterr()
+
+    assert "Paycheck" in captured.out
+    assert "Gas" not in captured.out
+
+def test_transaction_menu_expense_only(monkeypatch, capsys):
+    transactions = [
+        {
+            "type": "income",
+            "amount": 1000.00,
+            "date": "09-20-2026",
+            "description": "Paycheck"
+        },
+        {
+            "type": "expense",
+            "amount": 50.00,
+            "date": "09-21-2026",
+            "description": "Gas"
+        }
+    ]
+
+    user_inputs = iter([
+        "3",
+        "4"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    transaction_menu(transactions)
+    captured = capsys.readouterr()
+
+    assert "Paycheck" not in captured.out
+    assert "Gas"  in captured.out
+
+def test_transaction_menu_return(monkeypatch, capsys):
+
+    transactions = []
+    user_inputs = iter([
+        "4"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    transaction_menu(transactions)
+    captured = capsys.readouterr()
+
+    assert "Returning to main menu." in captured.out
+
+def test_transaction_menu_invalid_option(monkeypatch, capsys):
+    transactions = []
+    user_inputs = iter([
+        "5",
+        "4"
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(user_inputs))
+    transaction_menu(transactions)
+    captured = capsys.readouterr()
+
+    assert "Invalid option" in captured.out
+    assert "Returning to main menu." in captured.out
+    
