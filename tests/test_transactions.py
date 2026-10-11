@@ -9,6 +9,9 @@ from main import (
     get_valid_date,
     get_description,
     transaction_menu,
+    sort_transactions_by_date,
+    view_transactions,
+    format_transaction_date
 )
 
 def test_calculate_balance():
@@ -609,4 +612,197 @@ def test_transaction_menu_invalid_option(monkeypatch, capsys):
 
     assert "Invalid option" in captured.out
     assert "Returning to main menu." in captured.out
-    
+
+def test_sort_transactions_by_date():
+    transactions = [
+        {
+            "type": "income",
+            "amount": 1000.00,
+            "date": "10-05-2026",
+            "description": "Paycheck"
+        },
+        {
+            "type": "expense",
+            "amount": 50.00,
+            "date": "08-20-2026",
+            "description": "Gas"
+        },
+        {
+            "type": "expense",
+            "amount": 98.00,
+            "date": "09-15-2026",
+            "description": "Groceries"
+        }
+    ]
+
+    sorted_transactions = sort_transactions_by_date(transactions)
+
+    assert sorted_transactions[0]["description"] == "Paycheck"
+    assert sorted_transactions[1]["description"] == "Groceries"
+    assert sorted_transactions[2]["description"] == "Gas"
+    assert transactions[1]["description"] == "Gas"
+    assert transactions[2]["description"] == "Groceries"
+
+def test_view_income_transactions_sorted(capsys):
+    transactions = [
+        {
+            "type": "income",
+            "amount": 1000.00,
+            "date": "09-05-2026",
+            "description": "Paycheck 1"
+        },
+        {
+            "type": "income",
+            "amount": 1345.89,
+            "date": "09-19-2026",
+            "description": "Paycheck 2"
+        },
+        {
+            "type": "income",
+            "amount": 1403.78,
+            "date": "10-05-2026",
+            "description": "Paycheck 3"
+        }
+    ]
+
+    view_transactions(transactions, "income")
+    captured = capsys.readouterr()
+
+    assert captured.out.index("Paycheck 3") < captured.out.index("Paycheck 1")
+    assert captured.out.index("Paycheck 2") > captured.out.index("Paycheck 3")
+    assert captured.out.index("Paycheck 2") < captured.out.index("Paycheck 1")
+
+def test_view_expense_transactions_sorted(capsys):
+    transactions = [
+        {
+            "type": "expense",
+            "amount": 75.00,
+            "date": "09-05-2026",
+            "description": "Gas"
+        },
+        {
+            "type": "expense",
+            "amount": 114.67,
+            "date": "09-19-2026",
+            "description": "Groceries"
+        },
+        {
+            "type": "expense",
+            "amount": 960.00,
+            "date": "10-01-2026",
+            "description": "Rent"
+        }
+    ]
+
+    view_transactions(transactions, "expense")
+    captured = capsys.readouterr()
+
+    assert (
+        captured.out.index("Rent") 
+        < captured.out.index("Groceries")
+        < captured.out.index("Gas")
+    )
+
+def test_sort_transactions_invalid_date():
+    transactions = [
+        {
+            "type": "income",
+            "amount": 1000.00,
+            "date": "09-15-2026",
+            "description": "Paycheck"
+        },
+        {
+            "type": "expense",
+            "amount": 50.00,
+            "date": "08-32-2026",
+            "description": "Gas"
+        },
+        {
+            "type": "expense",
+            "amount": 98.00,
+            "date": "10-05-2026",
+            "description": "Groceries"
+        }
+    ]
+
+    sorted_transactions = sort_transactions_by_date(transactions)
+
+    assert sorted_transactions[0]["description"] == "Groceries"
+    assert sorted_transactions[1]["description"] == "Paycheck"
+    assert sorted_transactions[2]["description"] == "Gas"
+    assert transactions[1]["description"] == "Gas"
+    assert transactions[2]["description"] == "Groceries"
+
+def test_view_transactions_invalid_date(capsys):
+    transactions = [
+        {
+            "type": "expense",
+            "amount": 75.00,
+            "date": "08-32-2026",
+            "description": "Gas"
+        },
+        {
+            "type": "expense",
+            "amount": 114.67,
+            "date": "10-05-2026",
+            "description": "Groceries"
+        },
+        {
+            "type": "expense",
+            "amount": 960.00,
+            "date": "09-01-2026",
+            "description": "Rent"
+        }
+    ]
+
+    view_transactions(transactions, "expense")
+    captured = capsys.readouterr()
+
+    assert (
+        captured.out.index("Groceries") 
+        < captured.out.index("Rent")
+        < captured.out.index("Gas")
+    )
+
+    assert "08-32-2026" in captured.out
+
+def test_view_expense_invalid_date_warning(capsys):
+    transactions = [
+        {
+            "type": "expense",
+            "amount": 75.00,
+            "date": "08-32-2026",
+            "description": "Gas"
+        }
+    ]
+
+    view_transactions(transactions, "expense")
+    captured = capsys.readouterr()
+
+    assert "08-32-2026 (INVALID DATE)" in captured.out
+    assert transactions[0]["date"] == "08-32-2026"
+
+def test_view_income_invalid_date_warning(capsys):
+    transactions = [
+        {
+            "type": "income",
+            "amount": 1475.00,
+            "date": "08-32-2026",
+            "description": "Paycheck"
+        }
+    ]
+
+    view_transactions(transactions, "income")
+    captured = capsys.readouterr()
+
+    assert "08-32-2026 (INVALID DATE)" in captured.out
+    assert transactions[0]["date"] == "08-32-2026"
+
+
+def test_format_transaction_date_valid():
+    date_text = format_transaction_date("10-05-2026")
+    assert date_text == "10-05-2026"
+
+def test_format_transaction_date_invalid():
+    date_text = format_transaction_date("08-32-2026")
+    assert date_text == "08-32-2026 (INVALID DATE)"

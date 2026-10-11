@@ -90,43 +90,41 @@ def add_expense(transactions, filename="transactions.json"):
 
 
 def view_transactions(transactions, transaction_type="all"):
+    sorted_transactions = sort_transactions_by_date(transactions)
     income_transactions = []
     expense_transactions = []
 
     if transactions:
-        for transaction in transactions:
+        for transaction in sorted_transactions:
             if transaction["type"] == "income":
                 income_transactions.append(transaction)
             elif transaction["type"] == "expense":
                 expense_transactions.append(transaction)
-
         if transaction_type == "all" or transaction_type == "income":
             if income_transactions:
-                print("\nIncome\n" + "-"*10)
-            
+                print("\nIncome\n" + "-"*10)            
                 for income_trans in income_transactions:
+                    income_date_text = format_transaction_date(income_trans["date"])
                     print(
                         f"\nIncome Amount: ${income_trans['amount']:.2f}"
-                        f"\nDate Received: {income_trans['date']}" 
+                        f"\nDate Received: {income_date_text}" 
                         f"\nDescription: {income_trans['description']}"
                     )
             else:
                 print("\nThere are no income transactions to view at this time.\n")
-
         if transaction_type == "all" or transaction_type == "expense":   
             if expense_transactions:
                 print("\nExpenses")
                 print("-"*10)
-
                 for expense_trans in expense_transactions:
+                    expense_date_text = format_transaction_date(expense_trans["date"])
                     print(
                         f"\nExpense Amount: ${expense_trans['amount']:.2f}"
-                        f"\nDate Paid: {expense_trans['date']}" 
+                        f"\nDate Paid: {expense_date_text}" 
                         f"\nDescription: {expense_trans['description']}"
                     )
             else: 
                 print("There are no expenses at this time.")
-
     else:
         print("\nYou do not have any transactions to view.")
 
@@ -244,6 +242,36 @@ def transaction_menu(transactions):
             print("\nInvalid option.  Please choose again.")
 
 
+def transaction_date(transaction):
+    trans_date = validate_date(transaction["date"])
+    return trans_date
+
+
+def sort_transactions_by_date(transactions):
+    valid_transactions = []
+    invalid_transactions = []
+    for transaction in transactions:
+        if validate_date(transaction["date"]) is None:
+            invalid_transactions.append(transaction)
+        else:
+            valid_transactions.append(transaction)
+
+    sorted_transactions = sorted(
+        valid_transactions,
+        key=transaction_date,
+        reverse=True
+    )
+
+    combined_transactions = sorted_transactions + invalid_transactions
+
+    return combined_transactions
+
+
+def format_transaction_date(date_text):
+    if validate_date(date_text) is None:
+        return date_text + " (INVALID DATE)"
+    else:
+        return date_text
 
 def main():
     transactions = load_transactions()
