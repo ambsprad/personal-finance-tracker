@@ -11,7 +11,9 @@ from main import (
     transaction_menu,
     sort_transactions_by_date,
     view_transactions,
-    format_transaction_date
+    format_transaction_date,
+    display_transaction,
+    separate_transactions
 )
 
 def test_calculate_balance():
@@ -806,3 +808,62 @@ def test_format_transaction_date_valid():
 def test_format_transaction_date_invalid():
     date_text = format_transaction_date("08-32-2026")
     assert date_text == "08-32-2026 (INVALID DATE)"
+
+def test_display_transaction_income(capsys):
+    transactions = [
+        {
+            "type": "income",
+            "amount": 1500.00,
+            "date": "10-15-2026",
+            "description": "Paycheck"
+        }
+    ]
+
+    display_transaction(transactions[0])
+    captured = capsys.readouterr()
+
+    assert "Income Amount: $1500.00" in captured.out
+    assert "Date Received: 10-15-2026" in captured.out
+    assert "Description: Paycheck" in captured.out
+
+
+def test_display_transaction_expense(capsys):
+    transactions = [
+        {
+            "type": "expense",
+            "amount": 75.50,
+            "date": "10-20-2026",
+            "description": "Gas"
+        }
+    ]
+
+    display_transaction(transactions[0])
+    captured = capsys.readouterr()
+
+    assert "Expense Amount: $75.50" in captured.out
+    assert "Date Paid: 10-20-2026" in captured.out
+    assert "Description: Gas" in captured.out
+
+def test_separate_transactions_mixed():
+    transactions = [
+        {"type": "income", "amount": 1500.00},
+        {"type": "expense", "amount": 75.50},
+        {"type": "income", "amount": 250.00}
+    ]
+
+    income_transactions, expense_transactions = separate_transactions(transactions)
+
+    assert len(income_transactions) == 2
+    assert len(expense_transactions) == 1
+    assert income_transactions[0]["amount"] == 1500.00
+    assert expense_transactions[0]["amount"] == 75.50
+
+def test_separate_transactions_empty():
+    transactions = []
+
+    income_transactions, expense_transactions = separate_transactions(transactions)
+
+    assert len(income_transactions) == 0
+    assert len(expense_transactions) == 0
+
+
